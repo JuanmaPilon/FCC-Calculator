@@ -5,36 +5,43 @@ function Calculator() {
   const [displayValue, setDisplayValue] = useState("0");
   const [currentValue, setCurrentValue] = useState("");
   const [operator, setOperator] = useState("");
-  const [previousValue, setPreviousValue] = useState();
+  const [previousValue, setPreviousValue] = useState("");
 
   const handleNumberClick = (number) => {
-    if (displayValue === "0" && number === "0") return;
-    if (displayValue === "0" || operator !== "") {
-      setDisplayValue(number);
-      setCurrentValue(number);
+    if (operator !== "") {
+      setCurrentValue(prevValue => prevValue + number);
+      setDisplayValue(prevValue => prevValue + number);
       setOperator("");
     } else {
-      const newValue = displayValue + number;
-      setDisplayValue(newValue);
-      setCurrentValue(newValue);
+      if (displayValue === "0") {
+        setDisplayValue(number);
+        setCurrentValue(number);
+      } else {
+        const newValue = displayValue + number;
+        setDisplayValue(newValue);
+        setCurrentValue(newValue);
+      }
     }
   };
+  
+  
 
-const handleOperatorClick = (op) => {
-  if (operator === ''){
+  const handleOperatorClick = (op) => {
     setOperator(op);
     setPreviousValue(displayValue);
-    setCurrentValue('');
-  } else {
+    setCurrentValue("");
     calculate();
-    setOperator(op);
-  }
-};
+  };
+  
 
   const calculate = () => {
     let result;
     const prev = parseFloat(previousValue);
     const current = parseFloat(currentValue);
+
+    if (isNaN(prev) || isNaN(current)) {
+      return;
+    }
 
     switch (operator) {
       case "+":
@@ -55,7 +62,21 @@ const handleOperatorClick = (op) => {
 
     const formattedResult = formatResult(result);
     setDisplayValue(formattedResult);
-    setCurrentValue(formattedResult);
+    setPreviousValue(formattedResult);
+    setCurrentValue("");
+  };
+
+  const handleEqualsClick = () => {
+    calculate();
+    setOperator("");
+  };
+  
+
+  const handleClearClick = () => {
+    setDisplayValue("0");
+    setCurrentValue("");
+    setOperator("");
+    setPreviousValue("");
   };
 
   const formatResult = (result) => {
@@ -109,6 +130,12 @@ const handleOperatorClick = (op) => {
         </button>
         <button id="divide" onClick={() => handleOperatorClick("/")}>
           /
+        </button>
+        <button id="result" onClick={() => handleEqualsClick("=")}>
+          =
+        </button>
+        <button id="clear" onClick={() => handleClearClick()}>
+          CLEAR
         </button>
       </div>
     </div>
